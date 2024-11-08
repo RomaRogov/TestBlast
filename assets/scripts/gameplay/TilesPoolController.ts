@@ -1,12 +1,8 @@
 import { instantiate, Prefab } from "cc";
 import { FieldData } from "../data/GameBalanceData";
-import { Action, InitializableController } from "./ControllersManager";
 import { TileView } from "./TileView";
 
-export class TilesPoolController implements InitializableController {
-
-    isInitialized: boolean = false;
-    finishInitializationHandler: Action;
+export class TilesPoolController {
 
     private tiles: TileView[] = [];
 
@@ -21,10 +17,6 @@ export class TilesPoolController implements InitializableController {
             }
             this.tiles.push(tileView);
         }
-
-        this.isInitialized = true;
-        if (this.finishInitializationHandler)
-            this.finishInitializationHandler();
     }
 
     getTile(): TileView {

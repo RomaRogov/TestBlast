@@ -1,14 +1,10 @@
 import { EventHandler, Vec2, Vec3 } from "cc";
 import { FieldData } from "../data/GameBalanceData";
 import { FieldView } from "./FieldView";
-import { Action, InitializableController } from "./ControllersManager";
 import { TilesPoolController } from "./TilesPoolController";
 import { TileController } from "./TileController";
 
-export class FieldController implements InitializableController {
-    
-    isInitialized: boolean = false;
-    finishInitializationHandler: Action;
+export class FieldController {
 
     private fieldView: FieldView;
     private tileControllers: TileController[][] = [];
@@ -24,10 +20,6 @@ export class FieldController implements InitializableController {
                 this.tileControllers[i][j] = tileController;
             }
         }
-        
-        this.isInitialized = true;
-        if (this.finishInitializationHandler)
-            this.finishInitializationHandler();
     }
 
     public getTileViewPosition(pos: Vec2, out: Vec3) {

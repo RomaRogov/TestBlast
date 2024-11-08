@@ -31,7 +31,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 8
+      "__id__": 13
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -147,11 +147,68 @@
     "__prefab": {
       "__id__": 7
     },
+    "colors": [
+      {
+        "__id__": 8
+      },
+      {
+        "__id__": 9
+      },
+      {
+        "__id__": 10
+      },
+      {
+        "__id__": 11
+      },
+      {
+        "__id__": 12
+      }
+    ],
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
     "fileId": "69G6k7OMhNcrWmkdxJts77"
+  },
+  {
+    "__type__": "TileColorSprite",
+    "sprite": {
+      "__uuid__": "761bc692-8e80-4f5c-8317-b9b8d25c903c@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
+    "color": 0
+  },
+  {
+    "__type__": "TileColorSprite",
+    "sprite": {
+      "__uuid__": "ae19303b-3d3b-46cc-99f1-32c35d183f9b@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
+    "color": 1
+  },
+  {
+    "__type__": "TileColorSprite",
+    "sprite": {
+      "__uuid__": "abd94868-8e30-4ce6-9a12-22d59aae9d1f@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
+    "color": 2
+  },
+  {
+    "__type__": "TileColorSprite",
+    "sprite": {
+      "__uuid__": "6296cb50-2e7f-4433-ae84-bd043bd784a1@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
+    "color": 3
+  },
+  {
+    "__type__": "TileColorSprite",
+    "sprite": {
+      "__uuid__": "2c0342d2-9640-4e7b-b21a-8da4c13a3255@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
+    "color": 4
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -162,6 +219,7 @@
       "__id__": 0
     },
     "fileId": "53E7oEDHRJT6iivcqY/0cK",
+    "instance": null,
     "targetOverrides": null
   }
 ]

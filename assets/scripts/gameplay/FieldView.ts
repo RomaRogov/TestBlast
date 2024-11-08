@@ -9,8 +9,8 @@ export class FieldView extends Component {
         return this.tailsParent.node;
     }
 
-    @property({ type: Vec2 })
-    private tileSize: Vec2;
+    @property
+    private tileSize: Vec2 = new Vec2(0, 0);
     @property({ group: { name: 'BackgroundPadding'} })
     private paddingLeft: number = 0;
     @property({ group: { name: 'BackgroundPadding'} })
