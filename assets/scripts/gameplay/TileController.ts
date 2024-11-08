@@ -13,12 +13,13 @@ export enum TileColor {
 
 export class TileController {
     
+    public color: TileColor;
+    public position: Vec2;
+
     private fieldController: FieldController;
     private tilesPoolController: TilesPoolController;
     private tileView: TileView;
-    private position: Vec2;
     private viewPosition: Vec3 = new Vec3();
-    private color: TileColor;
 
     constructor(fieldController: FieldController, tilesContainer: Node, tilesPoolController: TilesPoolController, initialX: number, initialY: number) {
         this.fieldController = fieldController;
@@ -28,7 +29,11 @@ export class TileController {
 
         this.tileView = this.tilesPoolController.getTile();
         this.fieldController.getTileViewPosition(this.position, this.viewPosition);
-        this.tileView.setup(this.color, this.viewPosition, tilesContainer);
+        this.tileView.setup(this, this.viewPosition, tilesContainer, this.onClick.bind(this));
+    }
+
+    private onClick() {
+        this.fieldController.onTileClick(this);
     }
 }
 

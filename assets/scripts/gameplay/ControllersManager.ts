@@ -3,9 +3,8 @@ import { FieldController } from './FieldController';
 import { TilesPoolController } from './TilesPoolController';
 import { FieldView } from './FieldView';
 import { GameBalanceData } from '../data/GameBalanceData';
+import { Action } from '../common/ActionType';
 const { ccclass, property } = _decorator;
-
-export type Action = () => void;
 
 @ccclass('ControllersManager')
 export class ControllersManager extends Component {

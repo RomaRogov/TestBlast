@@ -2,7 +2,7 @@ import { EventHandler, Vec2, Vec3 } from "cc";
 import { FieldData } from "../data/GameBalanceData";
 import { FieldView } from "./FieldView";
 import { TilesPoolController } from "./TilesPoolController";
-import { TileController } from "./TileController";
+import { TileColor, TileController } from "./TileController";
 
 export class FieldController {
 
@@ -24,5 +24,9 @@ export class FieldController {
 
     public getTileViewPosition(pos: Vec2, out: Vec3) {
         this.fieldView.getTilePosition(pos, out);
+    }
+
+    public onTileClick(tile: TileController) {
+        console.log('FieldController.onTileClick: ' + TileColor[tile.color] + " [ " + tile.position.x + " | " + tile.position.y + " ]");
     }
 }
