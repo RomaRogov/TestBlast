@@ -32,6 +32,11 @@ export class TileController {
         this.tileView.setup(this, this.viewPosition, tilesContainer, this.onClick.bind(this));
     }
 
+    public dispose() {
+        this.tileView.reset();
+        this.tilesPoolController.returnTile(this.tileView);
+    }
+
     private onClick() {
         this.fieldController.onTileClick(this);
     }

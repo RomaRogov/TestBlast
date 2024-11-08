@@ -33,6 +33,12 @@ export class TileView extends Component {
         this.onClick = onClick;
     }
 
+    public reset() {
+        this.node.parent = null;
+        this.currentController = null;
+        this.onClick = null;
+    }
+
     public setColor(color: TileColor) {
         this.sprite ??= this.getComponent(Sprite);
         this.sprite.spriteFrame = this.colors[color].sprite;
