@@ -1,4 +1,4 @@
-import { Node, Vec2, Vec3 } from "cc";
+import { Color, Node, Sprite, Vec2, Vec3 } from "cc";
 import { FieldController } from "./FieldController";
 import { TilesPoolController } from "./TilesPoolController";
 import { TileView } from "./TileView";
@@ -15,11 +15,13 @@ export class TileController {
     
     public color: TileColor;
     public position: Vec2;
+    public get isFalling():boolean { return this.falling; }
 
     private fieldController: FieldController;
     private tilesPoolController: TilesPoolController;
     private tileView: TileView;
     private viewPosition: Vec3 = new Vec3();
+    private falling: boolean = false;
 
     constructor(fieldController: FieldController, tilesContainer: Node, tilesPoolController: TilesPoolController, initialX: number, initialY: number) {
         this.fieldController = fieldController;
@@ -32,12 +34,22 @@ export class TileController {
         this.tileView.setup(this, this.viewPosition, tilesContainer, this.onClick.bind(this));
     }
 
+    public fallToPosition(x: number, y: number) {
+        this.position.set(x, y);
+        this.falling = true;
+        this.fieldController.getTileViewPosition(this.position, this.viewPosition)
+        this.tileView.animateFall(this.viewPosition, () => { this.falling = false; });
+    }
+
     public dispose() {
         this.tileView.reset();
         this.tilesPoolController.returnTile(this.tileView);
     }
 
     private onClick() {
+        if (this.falling) {
+            return;
+        }
         this.fieldController.onTileClick(this);
     }
 }

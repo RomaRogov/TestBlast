@@ -1,5 +1,5 @@
 import { EventHandler, Vec2, Vec3 } from "cc";
-import { FieldData } from "../data/GameBalanceData";
+import { FieldData, GameBalanceData } from "../data/GameBalanceData";
 import { FieldView } from "./FieldView";
 import { TilesPoolController } from "./TilesPoolController";
 import { TileColor, TileController } from "./TileController";
@@ -15,14 +15,19 @@ export class FieldController {
 
     private fieldView: FieldView;
     private tileControllers: TileController[][] = [];
+    private fieldSize: Vec2;
+    private minimalGroupSize: number;
 
-    constructor(fieldView: FieldView, tilesPool: TilesPoolController, fieldData: FieldData) {
+    constructor(fieldView: FieldView, tilesPool: TilesPoolController, gameBalance: GameBalanceData) {
+        this.fieldSize = gameBalance.field.size;
+        this.minimalGroupSize = gameBalance.minimalGroupSize;
+
         this.fieldView = fieldView;
-        fieldView.setSize(fieldData.size.x, fieldData.size.y);
+        fieldView.setSize(this.fieldSize.x, this.fieldSize.y);
         
-        for (let i = 0; i < fieldData.size.x; i++) {
+        for (let i = 0; i < this.fieldSize.x; i++) {
             this.tileControllers[i] = [];
-            for (let j = 0; j < fieldData.size.y; j++) {
+            for (let j = 0; j < this.fieldSize.y; j++) {
                 let tileController = new TileController(this, fieldView.tilesContainer, tilesPool, i, j);
                 this.tileControllers[i][j] = tileController;
             }
@@ -35,8 +40,7 @@ export class FieldController {
 
     public onTileClick(tile: TileController) {
         let group = this.findGroup(tile.color, tile.position);
-        console.log(group);
-        if (group.length > 1) {
+        if (group.length >= this.minimalGroupSize) {
             this.removeGroup(group);
         }
     }
@@ -59,8 +63,6 @@ export class FieldController {
     private findGroupRecursive(color: TileColor, position: Vec2, visited: boolean[][], group: Vec2[]) {
         visited[position.x][position.y] = true;
 
-        console.log(position + " " + TileColor[color]);
-
         group.push(position);
 
         const neighbour : Vec2 = new Vec2();
@@ -79,9 +81,34 @@ export class FieldController {
     }
 
     private removeGroup(group: Vec2[]) {
+        let startX = group[0].x;
+
         for (let pos of group) {
             this.tileControllers[pos.x][pos.y].dispose();
             this.tileControllers[pos.x][pos.y] = null;
+
+            if (pos.x < startX) {
+                startX = pos.x;
+            }
+        }
+
+        let groupOfLowestY : Vec2[] = [];
+        for (let pos of group) {
+            if (groupOfLowestY[pos.x - startX] == null || groupOfLowestY[pos.x - startX].y > pos.y) {
+                groupOfLowestY[pos.x - startX] = pos;
+            }
+        }
+
+        for (let pos of groupOfLowestY) {
+            let currentCell = pos.y;
+            for (let i = pos.y + 1; i < this.tileControllers[0].length; i++) {
+                if (this.tileControllers[pos.x][i] != null) {
+                    this.tileControllers[pos.x][i].fallToPosition(pos.x, currentCell);
+                    this.tileControllers[pos.x][currentCell] = this.tileControllers[pos.x][i];
+                    this.tileControllers[pos.x][i] = null;
+                    currentCell++;
+                }
+            }
         }
     }
 }

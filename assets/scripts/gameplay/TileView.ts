@@ -1,4 +1,4 @@
-import { _decorator, Component, Enum, EventMouse, EventTouch, Input, input, Node, Sprite, SpriteFrame, Vec3 } from 'cc';
+import { _decorator, Component, easing, Enum, EventMouse, EventTouch, Input, input, Node, Sprite, SpriteFrame, tween, Vec3 } from 'cc';
 import { TileColor, TileController } from './TileController';
 import { Action } from '../common/ActionType';
 const { ccclass, property } = _decorator;
@@ -31,6 +31,10 @@ export class TileView extends Component {
         this.node.position = position;
         this.node.parent = parent;
         this.onClick = onClick;
+    }
+
+    public animateFall(position: Vec3, callback: Action) {
+        tween(this.node).to(0.2, { position: position }, { easing: 'sineIn', onComplete: callback }).start();
     }
 
     public reset() {
