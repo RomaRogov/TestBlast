@@ -31,7 +31,7 @@ export class ControllersManager extends Component {
     start() {
         this.gameBalanceData = this.gameBalanceDataAsset.json as GameBalanceData;
 
-        this.tilesPoolController = new TilesPoolController(this.tilePrefab, this.gameBalanceData.field);
+        this.tilesPoolController = new TilesPoolController(this.tilePrefab, this.gameBalanceData);
         this.fieldController = new FieldController(this.fieldView, this.tilesPoolController, this.gameBalanceData);
         ControllersManager.eventHandler();
     }

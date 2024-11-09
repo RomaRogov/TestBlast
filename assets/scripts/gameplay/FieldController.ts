@@ -6,6 +6,8 @@ import { TileColor, TileController } from "./TileController";
 
 export class FieldController {
 
+    public get fieldSizeY(): number { return this.fieldSize.y; }
+
     private readonly neighbours: Vec2[] = [
         new Vec2(1, 0),
         new Vec2(-1, 0),
@@ -18,6 +20,7 @@ export class FieldController {
     private tileControllers: TileController[][] = [];
     private fieldSize: Vec2;
     private minimalGroupSize: number;
+    private fallingTileCount: number = 0;
 
     constructor(fieldView: FieldView, tilesPool: TilesPoolController, gameBalance: GameBalanceData) {
         this.fieldSize = gameBalance.field.size;
@@ -108,17 +111,63 @@ export class FieldController {
             //Remove nulls to "fall" tiles
             this.tileControllers[pos.x] = this.tileControllers[pos.x].filter((value) => value != null);
 
+            let tilesToCreate = this.fieldSize.y - this.tileControllers[pos.x].length;
+
             //Trigger falling animation
             for (let i = pos.y; i < this.tileControllers[pos.x].length; i++) {
-                this.tileControllers[pos.x][i].fallToPosition(pos.x, i);
+                let currentPos = this.tileControllers[pos.x][i].position.y;
+                this.fallingTileCount++;
+                this.tileControllers[pos.x][i].fallToPosition(pos.x, i, currentPos - i, false, this.checkFallingFinished.bind(this));
             }
 
             //Create new tiles
-            let tilesToCreate = this.fieldSize.y - this.tileControllers[pos.x].length;
-            for (let i = this.tileControllers[pos.x].length; i < this.fieldSize.y; i++) {
+            let posToStart = this.tileControllers[pos.x].length;
+            for (let i = posToStart; i < this.fieldSize.y; i++) {
                 let tileController = new TileController(this, this.fieldView.tilesContainer, this.tilesPool, pos.x, this.tileControllers[pos.x].length + tilesToCreate);
-                tileController.fallToPosition(pos.x, this.tileControllers[pos.x].length);
+                this.fallingTileCount++;
+                tileController.fallToPosition(pos.x, this.tileControllers[pos.x].length, tilesToCreate, true, this.checkFallingFinished.bind(this));
                 this.tileControllers[pos.x].push(tileController);
+            }
+        }
+    }
+
+    private checkFallingFinished() {
+        if (--this.fallingTileCount === 0) {
+            this.makeSureEligibleGroupExists();
+        }
+    }
+
+    private makeSureEligibleGroupExists() {
+        for (let i = 0; i < this.tileControllers.length; i++) {
+            for (let j = 0; j < this.tileControllers[i].length; j++) {
+                let group = this.findGroup(this.tileControllers[i][j].color, this.tileControllers[i][j].position);
+                if (group.length >= this.minimalGroupSize) {
+                    return; //All good!
+                }
+            }
+        }
+
+        this.shuffleTiles();
+    }
+
+    private shuffleTiles() {
+        let flattenedTiles: TileController[] = [];
+        for (let i = 0; i < this.tileControllers.length; i++) {
+            for (let j = 0; j < this.tileControllers[i].length; j++) {
+                flattenedTiles.push(this.tileControllers[i][j]);
+            }
+        }
+
+        for (let i = flattenedTiles.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [flattenedTiles[i], flattenedTiles[j]] = [flattenedTiles[j], flattenedTiles[i]];
+        }
+
+        for (let i = 0; i < this.tileControllers.length; i++) {
+            for (let j = 0; j < this.tileControllers[i].length; j++) {
+                this.tileControllers[i][j] = flattenedTiles[i * this.fieldSize.y + j];
+                this.fallingTileCount++;
+                this.tileControllers[i][j].shuffleToPosition(i, j, this.checkFallingFinished.bind(this));
             }
         }
     }

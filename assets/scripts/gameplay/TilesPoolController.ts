@@ -1,13 +1,17 @@
 import { instantiate, Prefab } from "cc";
-import { FieldData } from "../data/GameBalanceData";
+import { GameBalanceData } from "../data/GameBalanceData";
 import { TileView } from "./TileView";
 
 export class TilesPoolController {
 
-    private tiles: TileView[] = [];
+    public get tileColorsVariants() : number { return Math.min(this.tileColors, this.tiles.length); }
 
-    constructor(tileViewPrefab: Prefab, fieldData: FieldData) {
-        let tilesCount = fieldData.size.x * fieldData.size.y;
+    private tiles: TileView[] = [];
+    private tileColors: number;
+
+    constructor(tileViewPrefab: Prefab, gameBalanceData: GameBalanceData) {
+        let tilesCount = gameBalanceData.field.size.x * gameBalanceData.field.size.y;
+        this.tileColors = gameBalanceData.tileColorVariants;
 
         for (let i = 0; i < tilesCount; i++) {
             let tileView = instantiate(tileViewPrefab).getComponent(TileView);

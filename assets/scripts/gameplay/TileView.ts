@@ -16,6 +16,8 @@ export class TileView extends Component {
     
     @property({ type: TileColorSprite })
     public colors: TileColorSprite[] = [];
+    @property private fallingDuration: number = 0.15;
+    @property private fallingDelay: number = 0.1;
 
     private sprite: Sprite;
     private currentController: TileController;
@@ -33,8 +35,9 @@ export class TileView extends Component {
         this.onClick = onClick;
     }
 
-    public animateFall(position: Vec3, callback: Action) {
-        tween(this.node).to(0.2, { position: position }, { easing: 'sineIn', onComplete: callback }).start();
+    public animateFall(position: Vec3, blocksToFall: number, delay: boolean, callback: Action) {
+        tween(this.node).delay(delay ? this.fallingDelay : 0)
+            .to(blocksToFall * this.fallingDuration, { position: position }, { easing: 'bounceOut', onComplete: callback }).start();
     }
 
     public reset() {

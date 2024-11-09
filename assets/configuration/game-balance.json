@@ -1,7 +1,21 @@
 {
     "field": {
-        "size": { "x": 9, "y": 9 }
+      "size": {
+        "x": 9,
+        "y": 9
+      }
     },
-    "tileVariants": 6,
-    "minimalGroupSize": 2
+    "gameGoal": {
+      "targetScore": 1000,
+      "moves": 20
+    },
+    "tileColorVariants": 5,
+    "minimalGroupSize": 4,
+    "mixTries": 3,
+    "baseScorePerTile": 10,
+    "scoreMultiplierPerCombo": [
+      [3, 1.0],
+      [4, 1.5],
+      [5, 2.0]
+    ]
 }
