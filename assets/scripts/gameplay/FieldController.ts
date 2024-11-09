@@ -14,6 +14,7 @@ export class FieldController {
     ];
 
     private fieldView: FieldView;
+    private tilesPool: TilesPoolController;
     private tileControllers: TileController[][] = [];
     private fieldSize: Vec2;
     private minimalGroupSize: number;
@@ -21,14 +22,16 @@ export class FieldController {
     constructor(fieldView: FieldView, tilesPool: TilesPoolController, gameBalance: GameBalanceData) {
         this.fieldSize = gameBalance.field.size;
         this.minimalGroupSize = gameBalance.minimalGroupSize;
-
+        
         this.fieldView = fieldView;
+        this.tilesPool = tilesPool;
+
         fieldView.setSize(this.fieldSize.x, this.fieldSize.y);
         
         for (let i = 0; i < this.fieldSize.x; i++) {
             this.tileControllers[i] = [];
             for (let j = 0; j < this.fieldSize.y; j++) {
-                let tileController = new TileController(this, fieldView.tilesContainer, tilesPool, i, j);
+                let tileController = new TileController(this, fieldView.tilesContainer, this.tilesPool, i, j);
                 this.tileControllers[i][j] = tileController;
             }
         }
@@ -83,6 +86,7 @@ export class FieldController {
     private removeGroup(group: Vec2[]) {
         let startX = group[0].x;
 
+        //Remove tiles
         for (let pos of group) {
             this.tileControllers[pos.x][pos.y].dispose();
             this.tileControllers[pos.x][pos.y] = null;
@@ -91,7 +95,8 @@ export class FieldController {
                 startX = pos.x;
             }
         }
-
+        
+        //Find the lowest of each column
         let groupOfLowestY : Vec2[] = [];
         for (let pos of group) {
             if (groupOfLowestY[pos.x - startX] == null || groupOfLowestY[pos.x - startX].y > pos.y) {
@@ -100,14 +105,20 @@ export class FieldController {
         }
 
         for (let pos of groupOfLowestY) {
-            let currentCell = pos.y;
-            for (let i = pos.y + 1; i < this.tileControllers[0].length; i++) {
-                if (this.tileControllers[pos.x][i] != null) {
-                    this.tileControllers[pos.x][i].fallToPosition(pos.x, currentCell);
-                    this.tileControllers[pos.x][currentCell] = this.tileControllers[pos.x][i];
-                    this.tileControllers[pos.x][i] = null;
-                    currentCell++;
-                }
+            //Remove nulls to "fall" tiles
+            this.tileControllers[pos.x] = this.tileControllers[pos.x].filter((value) => value != null);
+
+            //Trigger falling animation
+            for (let i = pos.y; i < this.tileControllers[pos.x].length; i++) {
+                this.tileControllers[pos.x][i].fallToPosition(pos.x, i);
+            }
+
+            //Create new tiles
+            let tilesToCreate = this.fieldSize.y - this.tileControllers[pos.x].length;
+            for (let i = this.tileControllers[pos.x].length; i < this.fieldSize.y; i++) {
+                let tileController = new TileController(this, this.fieldView.tilesContainer, this.tilesPool, pos.x, this.tileControllers[pos.x].length + tilesToCreate);
+                tileController.fallToPosition(pos.x, this.tileControllers[pos.x].length);
+                this.tileControllers[pos.x].push(tileController);
             }
         }
     }
