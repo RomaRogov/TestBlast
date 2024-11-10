@@ -14,7 +14,7 @@ export enum TileColor {
 
 export class TileController {
     
-    public color: TileColor;
+    public color: number;
     public position: Vec2;
     public get isAnimating():boolean { return this.animating; }
 
@@ -35,15 +35,15 @@ export class TileController {
         this.tileView.setup(this, this.viewPosition, tilesContainer, this.onClick.bind(this));
     }
 
-    public fallToPosition(x: number, y: number, blocksToFall: number, delay: boolean, onFallComplete: Action) {
+    public fallToPosition(x: number, y: number, blocksToFall: number, onFallComplete: Action) {
         this.position.set(x, y);
         this.animating = true;
         this.fieldController.getTileViewPosition(this.position, this.viewPosition)
-        this.tileView.animateFall(this.viewPosition, blocksToFall, delay, () => { 
+        this.tileView.animateFall(this.viewPosition, blocksToFall, () => { 
+            this.animating = false; 
             if (onFallComplete) {
                 onFallComplete();
             }
-            this.animating = false; 
         });
     }
 
@@ -51,12 +51,12 @@ export class TileController {
         this.position.set(x, y);
         this.animating = true;
         this.fieldController.getTileViewPosition(this.position, this.viewPosition);
-        this.tileView.animateFall(this.viewPosition, 3, false, () => { 
+        this.tileView.animateShuffle(this.viewPosition, () => { 
+            this.fixSiblingIndex();
+            this.animating = false;
             if (onAnimComplete) {
                 onAnimComplete();
             }
-            this.tileView.node.setSiblingIndex(x * this.fieldController.fieldSizeY + y);
-            this.animating = false; 
         });
     }
 
@@ -75,6 +75,10 @@ export class TileController {
             return;
         }
         this.fieldController.onTileClick(this);
+    }
+
+    private fixSiblingIndex() {
+        this.tileView.node.setSiblingIndex(this.position.x * this.fieldController.fieldSizeY + this.position.y);
     }
 }
 

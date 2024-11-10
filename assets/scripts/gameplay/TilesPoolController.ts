@@ -4,14 +4,14 @@ import { TileView } from "./TileView";
 
 export class TilesPoolController {
 
-    public get tileColorsVariants() : number { return Math.min(this.tileColors, this.tiles.length); }
+    public get tileColorsVariants() : number { return Math.min(this.tileColors, this.availableTileColors); }
 
     private tiles: TileView[] = [];
     private tileColors: number;
+    private availableTileColors: number;
 
     constructor(tileViewPrefab: Prefab, gameBalanceData: GameBalanceData) {
         let tilesCount = gameBalanceData.field.size.x * gameBalanceData.field.size.y;
-        this.tileColors = gameBalanceData.tileColorVariants;
 
         for (let i = 0; i < tilesCount; i++) {
             let tileView = instantiate(tileViewPrefab).getComponent(TileView);
@@ -21,6 +21,9 @@ export class TilesPoolController {
             }
             this.tiles.push(tileView);
         }
+
+        this.tileColors = gameBalanceData.tileColorVariants;
+        this.availableTileColors = this.tiles[0].colors.length;
     }
 
     getTile(): TileView {

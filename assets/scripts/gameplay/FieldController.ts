@@ -1,12 +1,17 @@
-import { EventHandler, Vec2, Vec3 } from "cc";
+import { EventHandler, game, Vec2, Vec3 } from "cc";
 import { FieldData, GameBalanceData } from "../data/GameBalanceData";
 import { FieldView } from "./FieldView";
 import { TilesPoolController } from "./TilesPoolController";
 import { TileColor, TileController } from "./TileController";
+import { Action, Action1 } from "../common/ActionType";
 
 export class FieldController {
 
     public get fieldSizeY(): number { return this.fieldSize.y; }
+    public get fieldSizeX(): number { return this.fieldSize.x; }
+
+    public onNoShufflesLeft: Action;
+    public onGroupRemoved: Action1<number>;
 
     private readonly neighbours: Vec2[] = [
         new Vec2(1, 0),
@@ -21,23 +26,30 @@ export class FieldController {
     private fieldSize: Vec2;
     private minimalGroupSize: number;
     private fallingTileCount: number = 0;
+    private shuffleAttempts: number = 0;
+    private shuffleMaxAttempts: number = 0;
 
     constructor(fieldView: FieldView, tilesPool: TilesPoolController, gameBalance: GameBalanceData) {
         this.fieldSize = gameBalance.field.size;
         this.minimalGroupSize = gameBalance.minimalGroupSize;
+        this.shuffleMaxAttempts = gameBalance.mixTries;
         
         this.fieldView = fieldView;
         this.tilesPool = tilesPool;
 
         fieldView.setSize(this.fieldSize.x, this.fieldSize.y);
-        
+    }
+
+    public onGameStart() {
         for (let i = 0; i < this.fieldSize.x; i++) {
             this.tileControllers[i] = [];
             for (let j = 0; j < this.fieldSize.y; j++) {
-                let tileController = new TileController(this, fieldView.tilesContainer, this.tilesPool, i, j);
+                let tileController = new TileController(this, this.fieldView.tilesContainer, this.tilesPool, i, j);
                 this.tileControllers[i][j] = tileController;
             }
         }
+
+        this.makeSureEligibleGroupExists();
     }
 
     public getTileViewPosition(pos: Vec2, out: Vec3) {
@@ -48,6 +60,8 @@ export class FieldController {
         let group = this.findGroup(tile.color, tile.position);
         if (group.length >= this.minimalGroupSize) {
             this.removeGroup(group);
+            if (this.onGroupRemoved)
+                this.onGroupRemoved(group.length);
         }
     }
 
@@ -117,7 +131,7 @@ export class FieldController {
             for (let i = pos.y; i < this.tileControllers[pos.x].length; i++) {
                 let currentPos = this.tileControllers[pos.x][i].position.y;
                 this.fallingTileCount++;
-                this.tileControllers[pos.x][i].fallToPosition(pos.x, i, currentPos - i, false, this.checkFallingFinished.bind(this));
+                this.tileControllers[pos.x][i].fallToPosition(pos.x, i, currentPos - i, this.checkFallingFinished.bind(this));
             }
 
             //Create new tiles
@@ -125,7 +139,7 @@ export class FieldController {
             for (let i = posToStart; i < this.fieldSize.y; i++) {
                 let tileController = new TileController(this, this.fieldView.tilesContainer, this.tilesPool, pos.x, this.tileControllers[pos.x].length + tilesToCreate);
                 this.fallingTileCount++;
-                tileController.fallToPosition(pos.x, this.tileControllers[pos.x].length, tilesToCreate, true, this.checkFallingFinished.bind(this));
+                tileController.fallToPosition(pos.x, this.tileControllers[pos.x].length, tilesToCreate, this.checkFallingFinished.bind(this));
                 this.tileControllers[pos.x].push(tileController);
             }
         }
@@ -142,6 +156,7 @@ export class FieldController {
             for (let j = 0; j < this.tileControllers[i].length; j++) {
                 let group = this.findGroup(this.tileControllers[i][j].color, this.tileControllers[i][j].position);
                 if (group.length >= this.minimalGroupSize) {
+                    this.shuffleAttempts = 0;
                     return; //All good!
                 }
             }
@@ -151,6 +166,16 @@ export class FieldController {
     }
 
     private shuffleTiles() {
+        this.shuffleAttempts++;
+        console.log('Shuffle attempt: ' + this.shuffleAttempts);
+
+        if (this.shuffleAttempts > this.shuffleMaxAttempts) {
+            if (this.onNoShufflesLeft)
+                this.onNoShufflesLeft();
+            console.log('No shuffles left, attempts: ' + this.shuffleAttempts);
+            return;
+        }
+
         let flattenedTiles: TileController[] = [];
         for (let i = 0; i < this.tileControllers.length; i++) {
             for (let j = 0; j < this.tileControllers[i].length; j++) {
