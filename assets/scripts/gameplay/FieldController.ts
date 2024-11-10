@@ -167,12 +167,10 @@ export class FieldController {
 
     private shuffleTiles() {
         this.shuffleAttempts++;
-        console.log('Shuffle attempt: ' + this.shuffleAttempts);
 
         if (this.shuffleAttempts > this.shuffleMaxAttempts) {
             if (this.onNoShufflesLeft)
                 this.onNoShufflesLeft();
-            console.log('No shuffles left, attempts: ' + this.shuffleAttempts);
             return;
         }
 
