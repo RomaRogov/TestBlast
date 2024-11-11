@@ -14,6 +14,11 @@ export interface GameBalanceData {
     //Key is minimal group size to get this multiplier, value is multiplier itself
     baseScorePerTile: number;
     scoreMultiplierPerCombo: Map<number, number>;
+
+    //Boosters are consuming score points just because I didn't implemented any currency system
+    bombBoosterPrice: number;
+    bombBoosterRadius: number; //Mentioned in test assignment as bomb booster radius R
+    teleportBoosterPrice: number;
 }
 
 export interface FieldData {

@@ -1,11 +1,14 @@
-import { Action } from "../common/ActionType";
-import { GameBalanceData } from "../data/GameBalanceData";
-import { GameScoringView } from "./GameScoringView";
+import { Action } from "../../common/ActionType";
+import { GameBalanceData } from "../../data/GameBalanceData";
+import { GameScoringView } from "../GameScoringView";
+import { BoosterType } from "./BoostersController";
 
 export class GameScoringController {
 
     public onNoMovesLeft: Action;
     public onGoalReached: Action;
+
+    public get score(): number { return this.currentScore; }
     
     private gameBalanceData: GameBalanceData;
 
@@ -50,6 +53,18 @@ export class GameScoringController {
                 this.onGoalReached();
             }
         }
+    }
+
+    public boosterUsed(type: BoosterType) {
+        switch (type) {
+            case BoosterType.Bomb:
+                this.currentScore -= this.gameBalanceData.bombBoosterPrice;
+                break;
+            case BoosterType.Teleport:
+                this.currentScore -= this.gameBalanceData.teleportBoosterPrice;
+                break;
+        }
+        this.view.setScore(this.currentScore, this.gameBalanceData.gameGoal.targetScore, true);
     }
 
 }

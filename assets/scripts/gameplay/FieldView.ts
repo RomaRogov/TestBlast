@@ -1,5 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab, Rect, UITransform, Vec2, Vec3 } from 'cc';
-import { TileView } from './TileView';
+import { _decorator, Component, UITransform, Vec2, Vec3 } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('FieldView')

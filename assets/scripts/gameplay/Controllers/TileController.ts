@@ -1,8 +1,8 @@
 import { Color, Node, Sprite, Vec2, Vec3 } from "cc";
 import { FieldController } from "./FieldController";
 import { TilesPoolController } from "./TilesPoolController";
-import { TileView } from "./TileView";
-import { Action } from "../common/ActionType";
+import { TileView } from "../TileView";
+import { Action } from "../../common/ActionType";
 
 export enum TileColor {
     Blue,
@@ -60,6 +60,10 @@ export class TileController {
         });
     }
 
+    public fixSiblingIndex() {
+        this.tileView.node.setSiblingIndex(this.position.x * this.fieldController.fieldSizeY + this.position.y);
+    }
+
     public dispose() {
         this.tileView.reset();
         this.tilesPoolController.returnTile(this.tileView);
@@ -75,10 +79,6 @@ export class TileController {
             return;
         }
         this.fieldController.onTileClick(this);
-    }
-
-    private fixSiblingIndex() {
-        this.tileView.node.setSiblingIndex(this.position.x * this.fieldController.fieldSizeY + this.position.y);
     }
 }
 

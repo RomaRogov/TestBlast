@@ -1,5 +1,5 @@
 import { _decorator, Button, Component, Label, Node, Sprite } from 'cc';
-import { GameEndReason } from './GameEndController';
+import { GameEndReason } from './Controllers/GameEndController';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameEndView')

@@ -1,9 +1,10 @@
 import { EventHandler, game, Vec2, Vec3 } from "cc";
-import { FieldData, GameBalanceData } from "../data/GameBalanceData";
-import { FieldView } from "./FieldView";
 import { TilesPoolController } from "./TilesPoolController";
 import { TileColor, TileController } from "./TileController";
-import { Action, Action1 } from "../common/ActionType";
+import { FieldView } from "../FieldView";
+import { Action, Action1 } from "../../common/ActionType";
+import { GameBalanceData } from "../../data/GameBalanceData";
+import { BoosterType } from "./BoostersController";
 
 export class FieldController {
 
@@ -28,11 +29,17 @@ export class FieldController {
     private fallingTileCount: number = 0;
     private shuffleAttempts: number = 0;
     private shuffleMaxAttempts: number = 0;
+    private inputLocked: boolean = false;
+    private currentBooster: BoosterType = null;
+    private bombRadius: number = 1;
+    private tileToTeleport: Vec2 = null;
+    private requireRebuild: boolean = false;
 
     constructor(fieldView: FieldView, tilesPool: TilesPoolController, gameBalance: GameBalanceData) {
         this.fieldSize = gameBalance.field.size;
         this.minimalGroupSize = gameBalance.minimalGroupSize;
         this.shuffleMaxAttempts = gameBalance.mixTries;
+        this.bombRadius = gameBalance.bombBoosterRadius;
         
         this.fieldView = fieldView;
         this.tilesPool = tilesPool;
@@ -52,17 +59,59 @@ export class FieldController {
         this.makeSureEligibleGroupExists();
     }
 
+    public onGameEnd() {
+        this.inputLocked = true;
+    }
+
     public getTileViewPosition(pos: Vec2, out: Vec3) {
         this.fieldView.getTilePosition(pos, out);
     }
 
     public onTileClick(tile: TileController) {
+        if (this.inputLocked) {
+            return;
+        }
+
+        if (this.currentBooster != null) {
+            switch (this.currentBooster) {
+                case BoosterType.Bomb:
+                    let tiles = this.getTilesInRadius(tile.position, this.bombRadius);
+                    this.removeGroup(tiles);
+                    this.currentBooster = null;
+                    return;
+                case BoosterType.Teleport:
+                    if (this.tileToTeleport == null) {
+                        this.tileToTeleport = tile.position;
+                    } else {
+                        this.requireRebuild = true;
+                        this.swapTiles(this.tileToTeleport.clone(), tile.position.clone());
+                        this.tileToTeleport = null;
+                        this.currentBooster = null;
+                    }
+                    return;
+            }
+        }
+
         let group = this.findGroup(tile.color, tile.position);
         if (group.length >= this.minimalGroupSize) {
             this.removeGroup(group);
             if (this.onGroupRemoved)
                 this.onGroupRemoved(group.length);
         }
+    }
+
+    public setBoosterMode(boosterType: BoosterType) {
+        this.currentBooster = boosterType;
+    }
+
+    private swapTiles(from: Vec2, to: Vec2) {
+        let tileTo: TileController = this.tileControllers[to.x][to.y];
+        let tileFrom: TileController = this.tileControllers[from.x][from.y];
+        this.tileControllers[to.x][to.y] = tileFrom;
+        this.tileControllers[from.x][from.y] = tileTo;
+        this.fallingTileCount += 2;
+        tileFrom.shuffleToPosition(to.x, to.y, this.checkFallingFinished.bind(this));
+        tileTo.shuffleToPosition(from.x, from.y, this.checkFallingFinished.bind(this));
     }
 
     private findGroup(color: TileColor, position: Vec2): Vec2[] {
@@ -78,6 +127,20 @@ export class FieldController {
         this.findGroupRecursive(color, position, visited, group);
 
         return group;
+    }
+
+    private getTilesInRadius(center: Vec2, radius: number): Vec2[] {
+        let tiles: Vec2[] = [];
+
+        for (let i = 0; i < this.tileControllers.length; i++) {
+            for (let j = 0; j < this.tileControllers[i].length; j++) {
+                if (Vec2.distance(center, this.tileControllers[i][j].position) <= radius) {
+                    tiles.push(this.tileControllers[i][j].position);
+                }
+            }
+        }
+
+        return tiles;
     }
 
     private findGroupRecursive(color: TileColor, position: Vec2, visited: boolean[][], group: Vec2[]) {
@@ -147,6 +210,16 @@ export class FieldController {
 
     private checkFallingFinished() {
         if (--this.fallingTileCount === 0) {
+
+            if (this.requireRebuild) {
+                this.requireRebuild = false;
+                for (let i = 0; i < this.tileControllers.length; i++) {
+                    for (let j = 0; j < this.tileControllers[i].length; j++) {
+                        this.tileControllers[i][j].fixSiblingIndex();
+                    }
+                }
+            }
+            
             this.makeSureEligibleGroupExists();
         }
     }

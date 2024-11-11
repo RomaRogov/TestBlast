@@ -1,13 +1,15 @@
 import { _decorator, Canvas, Component, JsonAsset, Prefab, Size, UITransform } from 'cc';
-import { FieldController } from './FieldController';
-import { TilesPoolController } from './TilesPoolController';
 import { FieldView } from './FieldView';
 import { GameBalanceData } from '../data/GameBalanceData';
 import { Action } from '../common/ActionType';
-import { GameScoringController } from './GameScoringController';
 import { GameScoringView } from './GameScoringView';
-import { GameEndController, GameEndReason } from './GameEndController';
 import { GameEndView } from './GameEndView';
+import { FieldController } from './Controllers/FieldController';
+import { TilesPoolController } from './Controllers/TilesPoolController';
+import { GameScoringController } from './Controllers/GameScoringController';
+import { GameEndController, GameEndReason } from './Controllers/GameEndController';
+import { BoostersController } from './Controllers/BoostersController';
+import { BoostersView } from './BoostersView';
 const { ccclass, property } = _decorator;
 
 @ccclass('ControllersManager')
@@ -26,8 +28,8 @@ export class ControllersManager extends Component {
     private gameScoringView: GameScoringView;
     @property({ type: GameEndView })
     private gameEndView: GameEndView;
-    @property({ type: Canvas })
-    private canvas: Canvas;
+    @property({ type: BoostersView })
+    private boostersView: BoostersView;
 
     private gameBalanceData: GameBalanceData;
     
@@ -35,6 +37,7 @@ export class ControllersManager extends Component {
     private tilesPoolController: TilesPoolController;
     private gameScoringController: GameScoringController;
     private gameEndController: GameEndController;
+    private boostersController: BoostersController;
 
     public static setOnCompleteHandler(handler: Action) {
         ControllersManager.onInitializationCompleted = handler;
@@ -53,11 +56,16 @@ export class ControllersManager extends Component {
         this.gameScoringController = new GameScoringController(this.gameBalanceData, this.gameScoringView);
         this.fieldController = new FieldController(this.fieldView, this.tilesPoolController, this.gameBalanceData);
         this.gameEndController = new GameEndController(this.gameEndView);
+        this.boostersController = new BoostersController(this.boostersView, this.gameScoringController, this.gameBalanceData);
 
         this.fieldController.onGroupRemoved = this.gameScoringController.groupRemoved.bind(this.gameScoringController);
         this.fieldController.onNoShufflesLeft = () => { this.gameEndController.onGameEnd(GameEndReason.NoGroupsLeft); };
         this.gameScoringController.onGoalReached = () => { this.gameEndController.onGameEnd(GameEndReason.GoalReached); };
         this.gameScoringController.onNoMovesLeft = () => { this.gameEndController.onGameEnd(GameEndReason.NoMovesLeft); };
+        this.boostersController.onBoosterUsed = (type) => {
+            this.fieldController.setBoosterMode(type);
+            this.gameScoringController.boosterUsed(type);
+        };
         ControllersManager.onInitializationCompleted();
     }
 

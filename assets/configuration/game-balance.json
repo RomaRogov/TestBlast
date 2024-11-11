@@ -17,5 +17,8 @@
       [3, 1.0],
       [4, 1.5],
       [5, 2.0]
-    ]
+    ],
+    "bombBoosterPrice": 200,
+    "bombBoosterRadius": 3,
+    "teleportBoosterPrice": 100
 }

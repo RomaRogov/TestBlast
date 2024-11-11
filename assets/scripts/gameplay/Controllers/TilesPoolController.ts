@@ -1,7 +1,6 @@
 import { instantiate, Prefab } from "cc";
-import { GameBalanceData } from "../data/GameBalanceData";
-import { TileView } from "./TileView";
-
+import { TileView } from "../TileView";
+import { GameBalanceData } from "../../data/GameBalanceData";
 export class TilesPoolController {
 
     public get tileColorsVariants() : number { return Math.min(this.tileColors, this.availableTileColors); }

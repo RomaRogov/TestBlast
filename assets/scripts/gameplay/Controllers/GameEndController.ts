@@ -1,5 +1,5 @@
 import { director } from "cc";
-import { GameEndView } from "./GameEndView";
+import { GameEndView } from "../GameEndView";
 
 export enum GameEndReason {
     NoMovesLeft,

@@ -1,6 +1,6 @@
-import { _decorator, Color, Component, easing, Enum, EventMouse, EventTouch, Input, input, Node, Sprite, SpriteFrame, Tween, tween, Vec3 } from 'cc';
-import { TileColor, TileController } from './TileController';
+import { _decorator, Color, Component, Enum, EventTouch, Node, Sprite, SpriteFrame, Tween, tween, Vec3 } from 'cc';
 import { Action } from '../common/ActionType';
+import { TileColor, TileController } from './Controllers/TileController';
 const { ccclass, property } = _decorator;
 
 @ccclass('TileColorSprite')
