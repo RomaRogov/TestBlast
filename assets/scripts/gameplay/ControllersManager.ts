@@ -55,8 +55,11 @@ export class ControllersManager extends Component {
         this.tilesPoolController = new TilesPoolController(this.tilePrefab, this.gameBalanceData);
         this.gameScoringController = new GameScoringController(this.gameBalanceData, this.gameScoringView);
         this.fieldController = new FieldController(this.fieldView, this.tilesPoolController, this.gameBalanceData);
-        this.gameEndController = new GameEndController(this.gameEndView);
         this.boostersController = new BoostersController(this.boostersView, this.gameScoringController, this.gameBalanceData);
+        this.gameEndController = new GameEndController(this.gameEndView, () => {
+            this.fieldController.onGameEnd();
+            this.boostersController.gameEnded();
+        });
 
         this.fieldController.onGroupRemoved = this.gameScoringController.groupRemoved.bind(this.gameScoringController);
         this.fieldController.onNoShufflesLeft = () => { this.gameEndController.onGameEnd(GameEndReason.NoGroupsLeft); };

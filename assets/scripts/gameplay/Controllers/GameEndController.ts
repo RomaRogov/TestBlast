@@ -1,5 +1,6 @@
 import { director } from "cc";
 import { GameEndView } from "../GameEndView";
+import { Action, Action1 } from "../../common/ActionType";
 
 export enum GameEndReason {
     NoMovesLeft,
@@ -10,9 +11,11 @@ export enum GameEndReason {
 export class GameEndController {
 
     private view: GameEndView;
+    private onGameEndCallback: Action1<GameEndReason>;
 
-    constructor(view: GameEndView) {
+    constructor(view: GameEndView, onGameEndCallback: Action1<GameEndReason>) {
         this.view = view;
+        this.onGameEndCallback = onGameEndCallback;
         this.view.initialize(() => {
             director.loadScene('boot');
         });
@@ -28,6 +31,7 @@ export class GameEndController {
                 this.view.showWin();
                 break;
         }
+        this.onGameEndCallback(reason);
     }
 
 }
