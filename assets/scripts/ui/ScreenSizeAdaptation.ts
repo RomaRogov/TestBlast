@@ -1,4 +1,4 @@
-import { _decorator, Component, Canvas, UITransform, screen, view, macro, SystemEventType, View } from 'cc';
+import { _decorator, Component, Canvas, UITransform, screen, view } from 'cc';
 const { ccclass, property, requireComponent } = _decorator;
 
 @ccclass('ScreenSizeAdaptation')

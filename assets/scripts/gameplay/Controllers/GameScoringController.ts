@@ -31,13 +31,6 @@ export class GameScoringController {
         this.movesLeft--;
         this.view.setMovesLeft(this.movesLeft, true);
 
-        if (this.movesLeft <= 0) {
-            if (this.onNoMovesLeft) {
-                this.onNoMovesLeft();
-            }
-            return;
-        }
-
         let multiplier = 1;
         for (let [key, value] of this.gameBalanceData.scoreMultiplierPerCombo) {
             if (groupSize >= key) {
@@ -51,6 +44,10 @@ export class GameScoringController {
         if (this.currentScore >= this.gameBalanceData.gameGoal.targetScore) {
             if (this.onGoalReached) {
                 this.onGoalReached();
+            }
+        } else if (this.movesLeft <= 0) {
+            if (this.onNoMovesLeft) {
+                this.onNoMovesLeft();
             }
         }
     }
