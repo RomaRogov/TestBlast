@@ -30,6 +30,8 @@ export class ControllersManager extends Component {
     private gameEndView: GameEndView;
     @property({ type: BoostersView })
     private boostersView: BoostersView;
+    @property({ type: Prefab })
+    private tileExplosionPrefab: Prefab;
 
     private gameBalanceData: GameBalanceData;
     
@@ -52,7 +54,7 @@ export class ControllersManager extends Component {
         this.gameBalanceData = this.gameBalanceDataAsset.json as GameBalanceData;
         ControllersManager.startGame = this.onGameStart.bind(this);
 
-        this.tilesPoolController = new TilesPoolController(this.tilePrefab, this.gameBalanceData);
+        this.tilesPoolController = new TilesPoolController(this.tilePrefab, this.tileExplosionPrefab, this.gameBalanceData);
         this.gameScoringController = new GameScoringController(this.gameBalanceData, this.gameScoringView);
         this.fieldController = new FieldController(this.fieldView, this.tilesPoolController, this.gameBalanceData);
         this.boostersController = new BoostersController(this.boostersView, this.gameScoringController, this.gameBalanceData);

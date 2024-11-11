@@ -64,6 +64,10 @@ export class TileController {
         this.tileView.node.setSiblingIndex(this.position.x * this.fieldController.fieldSizeY + this.position.y);
     }
 
+    public makeExpolosion() {
+        this.tilesPoolController.performExplosion(this.tileView);
+    }
+
     public dispose() {
         this.tileView.reset();
         this.tilesPoolController.returnTile(this.tileView);

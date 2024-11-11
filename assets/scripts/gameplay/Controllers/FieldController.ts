@@ -168,6 +168,7 @@ export class FieldController {
 
         //Remove tiles
         for (let pos of group) {
+            this.tileControllers[pos.x][pos.y].makeExpolosion();
             this.tileControllers[pos.x][pos.y].dispose();
             this.tileControllers[pos.x][pos.y] = null;
 
@@ -219,7 +220,7 @@ export class FieldController {
                     }
                 }
             }
-            
+
             this.makeSureEligibleGroupExists();
         }
     }

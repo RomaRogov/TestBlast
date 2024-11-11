@@ -164,6 +164,9 @@
         "__id__": 12
       }
     ],
+    "fallingDuration": 0.3,
+    "shufflingDuration": 0.5,
+    "fadingDuration": 0.2,
     "_id": ""
   },
   {

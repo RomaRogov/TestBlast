@@ -14,6 +14,10 @@ export class TileColorSprite {
 @ccclass('TileView')
 export class TileView extends Component {
     
+    public get spriteFrame(): SpriteFrame {
+        return this.sprite.spriteFrame;
+    }
+
     @property({ type: TileColorSprite })
     public colors: TileColorSprite[] = [];
     @property private fallingDuration: number = 0.15;
